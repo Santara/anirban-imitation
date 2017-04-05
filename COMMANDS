@@ -1,0 +1,5 @@
+python scripts/vis_mj.py expert_policies/classic/CartPole-v0.h5/snapshots/iter0000100 --out trajectories/expert_trajectories-CartPole-v0
+ --count 10
+python scripts/imitate_mj.py --mode bclone --data trajectories/expert_trajectories-CartPole-v0 --limit_trajs 10 --data_subsamp_freq 10 -
+-env_name CartPole-v0
+

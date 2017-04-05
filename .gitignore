@@ -1,0 +1,4 @@
+trajectories/*
+training_logs/*
+results/*
+expert_policies/*

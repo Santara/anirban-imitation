@@ -1,5 +1,17 @@
-python scripts/vis_mj.py expert_policies/classic/CartPole-v0.h5/snapshots/iter0000100 --out trajectories/expert_trajectories-CartPole-v0
- --count 10
-python scripts/imitate_mj.py --mode bclone --data trajectories/expert_trajectories-CartPole-v0 --limit_trajs 10 --data_subsamp_freq 10 -
--env_name CartPole-v0
+# Generate Expert Trajectories
 
+python scripts/vis_mj.py expert_policies/classic/CartPole-v0.h5/snapshots/iter0000100 --out trajectories/expert_trajectories-CartPole-v0 --count 10
+
+# Train the imitation algorithms
+
+python scripts/imitate_mj.py --mode bclone --data trajectories/expert_trajectories-CartPole-v0 --limit_trajs 10 --data_subsamp_freq 10 --env_name CartPole-v0 --bclone_eval_freq 10 --log training_logs/bclone_CartPole-v0.h5 --max_iter 300
+
+python scripts/imitate_mj.py --mode ga --data trajectories/expert_trajectories-CartPole-v0 --limit_trajs 10 --data_subsamp_freq 10 --env_name CartPole-v0 --log training_logs/ga_CartPole-v0.h5 --max_iter 301
+
+python scripts/imitate_mj.py --mode ga --data trajectories/expert_trajectories-Ant_v1 --limit_trajs 25 --data_subsamp_freq 20 --env_name Ant-v1 --log training_logs/ga_501_iter_Ant-v1.h5 --max_iter 501
+
+# Evaluate the quality of the policy produced
+
+python scripts/vis_mj.py training_logs/bclone_CartPole-v0.h5snapshots/iter0000290 --eval_only
+
+python scripts/vis_mj.py training_logs/ga_CartPole-v0.h5/snapshots/iter0000300 --eval_only --eval_log evaluation_logs/eval_ga_CartPole-v0.log

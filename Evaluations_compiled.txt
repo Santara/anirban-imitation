@@ -1,0 +1,37 @@
+Ant:
+EX: Mean return = 4153.64071858, std return = 726.445805845, mean length = 970.66, std length = 142.02698476
+GA: Mean return = 3256.24057392, std return = 1066.73773399, mean length = 883.92, std length = 251.928707376
+RA: Mean reward: -87.6432386065, Std reward: 127.035379971, Mean length: 249.76, Std length: 356.38785389
+
+CartPole:
+EX: Mean return = 200.0, std return = 0.0, mean length = 200.0, std length = 0.0
+GA: Mean return = 200.0, std return = 0.0, mean length = 200.0, std length = 0.0
+RA: Mean reward: 23.38, Std reward: 12.2766282016, Mean length: 23.38, Std length: 12.2766282016
+
+
+
+HalfCheetah:
+EX: Mean return = 3583.94634909, std return = 101.544548752, mean length = 1000.0, std length = 0.0
+GA: Mean return = 3324.26206836, std return = 242.166516708, mean length = 1000.0, std length = 0.0
+RA: Mean reward: -296.853643147, Std reward: 84.3682613252, Mean length: 1000.0, Std length: 0.0
+
+
+
+Hopper:
+EX: Mean return = 3666.88469511, std return = 392.90851049, mean length = 972.1, std length = 103.691127875
+GA: Mean return = 3676.09963248, std return = 263.400438799, mean length = 980.26, std length = 72.1001553396
+RA: Mean reward: 19.4024997447, Std reward: 14.7905138116, Mean length: 23.06, Std length: 12.1777009324
+
+
+
+Humanoid:
+EX: Mean return = 9779.84696195, std return = 1188.78065674, mean length = 971.94, std length = 111.39881687
+GA: Mean return = 9199.10484539, std return = 2548.46804533, mean length = 918.14, std length = 241.322274977
+RA: Mean reward: 116.996395497, Std reward: 25.8637948006, Mean length: 24.22, Std length: 5.60103561853
+
+
+
+Walker2d:
+EX: Mean return = 5317.64431604, std return = 655.553878783, mean length = 973.32, std length = 108.830775059
+GA: Mean return = 5433.8122482, std return = 476.249514679, mean length = 984.8, std length = 77.3149403414
+RA: Mean reward: 1.21960740565, Std reward: 5.5684870979, Mean length: 19.16, Std length: 6.88871541

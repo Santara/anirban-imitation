@@ -381,7 +381,7 @@ class TrainingLog(object):
         if self.f is None: return
 
         # Save all variables into this group
-        snapshot_root = '/snapshots/iter%07d' % key_iter
+        snapshot_root = '/snapshots/iter%07d' % key_iter 
 
         for v in model.get_all_variables():
             assert v.name[0] == '/'

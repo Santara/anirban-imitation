@@ -55,6 +55,8 @@ def main():
     parser.add_argument('--mode', choices=MODES, required=True)
     # Expert dataset
     parser.add_argument('--data', type=str, required=True)
+    parser.add_argument('--resume_training', action='store_true', help="Resume training from a checkpoint: --policy_checkpoint. Currently only supports GAIL with nn policy, reward and vf") 
+    parser.add_argument('--checkpoint', type=str, help="Load from checkpoint if provided and if --resume_training") 
     parser.add_argument('--limit_trajs', type=int, required=True, help="How many expert trajectories to be used for training. If None : full dataset is used.") 
     parser.add_argument('--data_subsamp_freq', type=int, required=True, help="A number between 0 and max_traj_len. Rate of subsampling of expert trajectories while creating the dataset of expert transitions (state-action)")
     # MDP options
@@ -127,6 +129,13 @@ def main():
             enable_obsnorm=enable_obsnorm)
         policy = rl.GibbsPolicy(policy_cfg, mdp.obs_space, mdp.action_space, 'GibbsPolicy')
 
+    #Load from checkpoint if provided <<<<<<<<<<<<<=============================>>>>>>>>>>>>>>>>.
+    if args.resume_training:
+        if args.checkpoint is not None:
+            file, policy_key = util.split_h5_name(args.checkpoint)
+            policy_file = file[:-3]+'_policy.h5'
+            policy.load_h5(policy_file, policy_key)
+
     util.header('Policy architecture')
     for v in policy.get_trainable_variables():
         util.header('- %s (%d parameters)' % (v.name, v.get_value().size))
@@ -169,7 +178,7 @@ def main():
 
     elif args.mode == 'ga':
         if args.reward_type == 'nn':
-            reward = imitation.TransitionClassifier(
+            reward = imitation.TransitionClassifier( #Add resume training functionality
                 hidden_spec=args.policy_hidden_spec,
                 obsfeat_space=mdp.obs_space,
                 action_space=mdp.action_space,
@@ -182,6 +191,14 @@ def main():
                 time_scale=1./mdp.env_spec.timestep_limit,
                 favor_zero_expert_reward=bool(args.favor_zero_expert_reward),
                 varscope_name='TransitionClassifier')
+            #Load from checkpoint if provided <<<<<<<<<<<<<=============================>>>>>>>>>>>>>>>>.
+            if args.resume_training:
+                if args.checkpoint is not None:
+                    file, reward_key = util.split_h5_name(args.checkpoint)
+                    reward_file = file[:-3]+'_reward.h5'
+                    print reward_file
+                    reward.load_h5(reward_file, reward_key)
+
         elif args.reward_type in ['l2ball', 'simplex']:
             reward = imitation.LinearReward(
                 obsfeat_space=mdp.obs_space,
@@ -197,7 +214,7 @@ def main():
         else:
             raise NotImplementedError(args.reward_type)
 
-        vf = None if bool(args.no_vf) else rl.ValueFunc(
+        vf = None if bool(args.no_vf) else rl.ValueFunc( #Add resume training functionality
             hidden_spec=args.policy_hidden_spec,
             obsfeat_space=mdp.obs_space,
             enable_obsnorm=args.obsnorm_mode != 'none',
@@ -206,6 +223,11 @@ def main():
             damping=args.vf_cg_damping,
             time_scale=1./mdp.env_spec.timestep_limit,
             varscope_name='ValueFunc')
+        if args.resume_training:
+            if args.checkpoint is not None:
+                file, vf_key = util.split_h5_name(args.checkpoint)
+                vf_file = file[:-3]+'_vf.h5'
+                vf.load_h5(vf_file, vf_key)
 
         opt = imitation.ImitationOptimizer(
             mdp=mdp,
@@ -235,7 +257,11 @@ def main():
 
     # Run optimizer
     print "======== Optimization begins ========"
-    log = nn.TrainingLog(args.log, [('args', argstr)])
+
+    # Trial: make checkpoints for policy, reward and vf
+    policy_log = nn.TrainingLog(args.log[:-3]+'_policy.h5', [('args', argstr)])
+    reward_log = nn.TrainingLog(args.log[:-3]+'_reward.h5', [('args', argstr)])
+    vf_log = nn.TrainingLog(args.log[:-3]+'_vf.h5', [('args', argstr)])
     
 
     for i in xrange(args.max_iter):
@@ -245,14 +271,24 @@ def main():
 
         #Log and plot
         #pdb.set_trace()
-	log.write(iter_info, 
-            print_header=i % (20*args.print_freq) == 0, 
-            display=i % args.print_freq == 0 ## FIXME: AS remove comment
-            )
+    	policy_log.write(iter_info, 
+                print_header=i % (20*args.print_freq) == 0, 
+                display=i % args.print_freq == 0 ## FIXME: AS remove comment
+                )
+        reward_log.write(iter_info, 
+                print_header=i % (20*args.print_freq) == 0, 
+                display=i % args.print_freq == 0 ## FIXME: AS remove comment
+                )
+        vf_log.write(iter_info, 
+                print_header=i % (20*args.print_freq) == 0, 
+                display=i % args.print_freq == 0 ## FIXME: AS remove comment
+                )
         
 
         if args.save_freq != 0 and i % args.save_freq == 0 and args.log is not None:
-            log.write_snapshot(policy, i)
+            policy_log.write_snapshot(policy, i)
+            reward_log.write_snapshot(reward, i)
+            vf_log.write_snapshot(vf, i)
 
         if args.plot_freq != 0 and i % args.plot_freq == 0:
             exdata_N_Doa = np.concatenate([exobs_Bstacked_Do, exa_Bstacked_Da], axis=1)

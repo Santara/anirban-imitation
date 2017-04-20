@@ -61,8 +61,13 @@ def main():
             hidden_spec=train_args['policy_hidden_spec'],
             enable_obsnorm=enable_obsnorm)
         policy = rl.GibbsPolicy(policy_cfg, mdp.obs_space, mdp.action_space, 'GibbsPolicy')
+    
+    #======================================
+    #Loads the checkpoint
     policy.load_h5(policy_file, policy_key)
+    #======================================
 
+    
     if args.eval_only:
         n = args.num_eval_trajs
         print 'Evaluating based on {} trajs'.format(n)
